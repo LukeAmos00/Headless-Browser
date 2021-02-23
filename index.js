@@ -61,8 +61,7 @@ app.post("/", (request, response) => {
                     request.body.code
                 );
                 await page.click('button[target="submit_button"]');
-                await page.waitForNavigation({ waitUntil: 'networkidle0' });
-                await page.screenshot({path: 'after 2FA.png'});
+                setTimeout(await page.screenshot({path: 'after 2FA.png'}), 10 * 1000);
                 
                 const url = await page.url();
                 if (!url.includes('login')) {
@@ -92,8 +91,7 @@ app.post("/", (request, response) => {
         try {
             (async () => {
                 await page.goto(`https://twitch.tv/${request.body.channel}/`);
-                await page.waitForNavigation({ waitUntil: 'networkidle0' });
-                await page.screenshot({path: 'playing.png'})
+                setTimeout(await page.screenshot({path: 'playing.png'}), 10 * 1000);
 
                 response.send(`Connected to ${await page.url()}`);
             })();
