@@ -15,9 +15,8 @@ let browser, page;
 
 let count = 0;
 
-try {
-    (async () => {
-        browser = await puppeteer.launch({executablePath: '/usr/bin/chromium-browser'});
+const login = async () => {
+    browser = await puppeteer.launch({executablePath: '/usr/bin/chromium-browser'});
         page = await browser.newPage();
         await page.goto("https://twitch.tv/login/");
 
@@ -36,6 +35,11 @@ try {
         await page.click('button[data-a-target="passport-login-button"]');
 
         console.log('Send POST request with 2FA code');
+}
+
+try {
+    (async () => {
+        login();
 
         app.listen(PORT, () => {
             console.log(`Server is running on PORT: ${PORT}`);
@@ -54,6 +58,22 @@ app.get("/", (_request, response) => {
 
 app.post("/", (request, response) => {
     console.log(request.body);
+
+    if (request.body.login) {
+        try {
+            (async () => {
+                login()
+        
+                app.listen(PORT, () => {
+                    console.log(`Server is running on PORT: ${PORT}`);
+                });
+            })();
+        } catch(e) {
+            console.log(e.message);
+            throw new Error("Error entering login details");
+        }
+    }
+
     if (request.body.code) {
         (async () => {
             try {
@@ -104,6 +124,6 @@ app.post("/", (request, response) => {
         }
     }
     else {
-        response.send("No body provided");
+        response.send("Invalid body provided");
     }
 });
