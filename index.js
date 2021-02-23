@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const { Agent } = require('http');
 const { exit } = require('process');
+const { NOTIMP } = require('dns');
 const app = express();
 
 app.use(express.json());
@@ -87,7 +88,7 @@ app.post("/", (request, response) => {
         }
     }
 
-    else if (request.body.channnel) {
+    else if (request.body.channel) {
         try {
             (async () => {
                 await page.goto(`https://twitch.tv/${request.body.channel}/`);
