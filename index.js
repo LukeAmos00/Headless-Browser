@@ -17,7 +17,7 @@ let count = 0;
 
 try {
     (async () => {
-        browser = await puppeteer.launch();
+        browser = await puppeteer.launch({executablePath: '/usr/bin/chromium-browser'});
         page = await browser.newPage();
         await page.goto("https://twitch.tv/login/");
 
