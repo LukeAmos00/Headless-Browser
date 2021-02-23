@@ -42,6 +42,7 @@ try {
         });
     })();
 } catch(e) {
+    console.log(e.message);
     throw new Error("Error entering login details");
 }
 
@@ -71,6 +72,7 @@ app.post("/", (request, response) => {
                 }
             } catch(e) {
                 response.send("Error Logging In");
+                console.log(e.message);
             }
         })();
     }
@@ -84,6 +86,7 @@ app.post("/", (request, response) => {
             response.send(`Screenshot Taken requestedScreenshot${count++}.png`);
         } catch(e) {
             response.send("Error taking screenshot");
+            console.log(e.message);
         }
     }
 
@@ -97,6 +100,7 @@ app.post("/", (request, response) => {
             })();
         } catch(e) {
             response.send("Error switching channel");
+            console.log(e.message);
         }
     }
     else {
