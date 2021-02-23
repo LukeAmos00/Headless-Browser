@@ -105,3 +105,6 @@ dist
 
 # Sensitive Information
 info.txt
+
+# Screenshots
+*.png
