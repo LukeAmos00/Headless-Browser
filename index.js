@@ -16,29 +16,30 @@ let browser, page;
 let count = 0;
 
 const login = async () => {
-    browser = await puppeteer.launch({executablePath: '/usr/bin/chromium-browser'});
-        page = await browser.newPage();
-        await page.goto("https://twitch.tv/login/");
+    await page.goto("https://twitch.tv/login/");
 
-        let username, password; 
-        fs.readFile('info.txt', 'utf-8', (error, data) => {
-            if (error) {
-                console.log('Could not read credentials from info.txt');
-                return;
-            }
-            [username, password] = data.split('\r\n');
-        });
+    let username, password; 
+    fs.readFile('info.txt', 'utf-8', (error, data) => {
+        if (error) {
+            console.log('Could not read credentials from info.txt');
+            return;
+        }
+        [username, password] = data.split('\r\n');
+    });
 
-        await page.click('button[role="tab"]');
-        await page.type('#login-username', username);
-        await page.type('#password-input', password);
-        await page.click('button[data-a-target="passport-login-button"]');
+    await page.click('button[role="tab"]');
+    await page.type('#login-username', username);
+    await page.type('#password-input', password);
+    await page.click('button[data-a-target="passport-login-button"]');
 
-        console.log('Send POST request with 2FA code');
+    console.log('Send POST request with 2FA code');
 }
 
 try {
     (async () => {
+        browser = await puppeteer.launch({executablePath: '/usr/bin/chromium-browser'});
+        page = await browser.newPage();
+
         login();
 
         app.listen(PORT, () => {
