@@ -1,9 +1,6 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const { Agent } = require('http');
-const { exit } = require('process');
-const { NOTIMP } = require('dns');
 const app = express();
 
 app.use(express.json());
@@ -16,14 +13,26 @@ let browser, page;
 let count = 0;
 
 const login = async () => {
-    await page.goto("https://twitch.tv/login/");
+    let cookies;
+    try {
+        cookies = fs.readFileSync('cookies.json', 'utf-8');
+        await page.setCookie(...JSON.parse(cookies));
+
+        await page.goto('https://twitch.tv/login/');
+        if (!await page.url().includes('login')) {
+            response.send('Logged in using cookies');
+            return;
+        }
+    } catch(e) {
+        console.log('Error reading cookies');
+        console.log(e.message);
+    }
+
+    await page.goto('https://twitch.tv/login/');
 
     let username, password; 
     fs.readFile('info.txt', 'utf-8', (error, data) => {
-        if (error) {
-            console.log('Could not read credentials from info.txt');
-            return;
-        }
+        if (error) throw new Error('Could not read credentials from info.txt');
         [username, password] = data.split('\r\n');
     });
 
@@ -37,7 +46,9 @@ const login = async () => {
 
 try {
     (async () => {
-        browser = await puppeteer.launch({executablePath: '/usr/bin/chromium-browser'});
+        browser = await puppeteer.launch(
+            {executablePath: '/usr/bin/chromium-browser'}
+        );
         page = await browser.newPage();
 
         login();
@@ -52,8 +63,22 @@ try {
 }
 
 app.get("/", (_request, response) => {
+    console.log("GET request");
+    let cookies, cookiesSet;
+    try {
+        (async () => {
+            cookies = fs.readFileSync('cookies.json', 'utf-8');
+            cookiesSet = cookies === await page.cookies();
+        })();
+    } catch(e) {
+        console.log('Error reading cookies');
+        console.log(e.message);
+        cookiesSet = false;
+    }
+
     response.send({
-        url: page.url()
+        url: page.url(),
+        loggedIn: cookiesSet
     });
 });
 
@@ -63,7 +88,7 @@ app.post("/", (request, response) => {
     if (request.body.login) {
         try {
             (async () => {
-                login()
+                login();
         
                 app.listen(PORT, () => {
                     console.log(`Server is running on PORT: ${PORT}`);
@@ -76,35 +101,49 @@ app.post("/", (request, response) => {
     }
 
     if (request.body.code) {
-        (async () => {
-            try {
+        try {
+            (async () => {
+                if (!(await page.url().includes('login'))) {
+                    response.send("Not on login page");
+                }
+
                 await page.type(
                     'input[data-a-target="tw-input"]',
                     request.body.code
                 );
                 await page.click('button[target="submit_button"]');
-                setTimeout(async () => await page.screenshot({path: 'after 2FA.png'}), 10 * 1000);
+                setTimeout(async () => {
+                    await page.screenshot({path: 'after 2FA.png'});
+                }, 10 * 1000);
                 
-                const url = await page.url();
-                if (!url.includes('login')) {
+                if (!await page.url().includes('login')) {
+                    fs.writeFile(
+                        'cookies.json',
+                        JSON.stringify(await page.cookies(), null, 2)
+                    );
+
                     response.send("Login Successful");
                 } else {
                     response.send("Login Failed");
                 }
-            } catch(e) {
-                response.send("Error Logging In");
-                console.log(e.message);
-            }
-        })();
+            })();
+        } catch(e) {
+            response.send("Error Logging In");
+            console.log(e.message);
+        }
     }
 
     else if (request.body.screenshot) {
         try {
             (async () => {
-                await page.screenshot({path: `requestedScreenshot${count}.png`});
+                await page.screenshot(
+                    {path: `requestedScreenshot${count}.png`}
+                );
             })();
 
-            response.send(`Screenshot Taken requestedScreenshot${count++}.png`);
+            response.send(
+                `Screenshot Taken requestedScreenshot${count++}.png`
+            );
         } catch(e) {
             response.send("Error taking screenshot");
             console.log(e.message);
@@ -115,7 +154,9 @@ app.post("/", (request, response) => {
         try {
             (async () => {
                 await page.goto(`https://twitch.tv/${request.body.channel}/`);
-                setTimeout(async () => await page.screenshot({path: 'playing.png'}), 10 * 1000);
+                setTimeout(async () => {
+                    await page.screenshot({path: 'playing.png'});
+                }, 10 * 1000);
 
                 response.send(`Connected to ${await page.url()}`);
             })();
