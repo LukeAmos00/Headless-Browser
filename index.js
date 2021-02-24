@@ -16,7 +16,7 @@ let browser, page;
 let count = 0;
 
 const login = async () => {
-    browser = await puppeteer.launch({executablePath: '/usr/bin/chromium-browser'});
+    browser = await puppeteer.launch();
         page = await browser.newPage();
         await page.goto("https://twitch.tv/login/");
 
@@ -82,7 +82,7 @@ app.post("/", (request, response) => {
                     request.body.code
                 );
                 await page.click('button[target="submit_button"]');
-                setTimeout(await page.screenshot({path: 'after 2FA.png'}), 10 * 1000);
+                setTimeout(async () => await page.screenshot({path: 'after 2FA.png'}), 10 * 1000);
                 
                 const url = await page.url();
                 if (!url.includes('login')) {
@@ -114,7 +114,7 @@ app.post("/", (request, response) => {
         try {
             (async () => {
                 await page.goto(`https://twitch.tv/${request.body.channel}/`);
-                setTimeout(await page.screenshot({path: 'playing.png'}), 10 * 1000);
+                setTimeout(async () => await page.screenshot({path: 'playing.png'}), 10 * 1000);
 
                 response.send(`Connected to ${await page.url()}`);
             })();
