@@ -68,7 +68,7 @@ app.get("/", (_request, response) => {
     try {
         (async () => {
             cookies = fs.readFileSync('cookies.json', 'utf-8');
-            cookiesSet = cookies === await page.cookies();
+            cookiesSet = cookies === await page.cookies() !== "";
         })();
     } catch(e) {
         console.log('Error reading cookies');
