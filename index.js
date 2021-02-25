@@ -100,7 +100,7 @@ app.post("/", (request, response) => {
         }
     }
 
-    if (request.body.code) {
+    else if (request.body.code) {
         try {
             (async () => {
                 if (!(await page.url().includes('login'))) {
@@ -129,6 +129,22 @@ app.post("/", (request, response) => {
             })();
         } catch(e) {
             response.send("Error Logging In");
+            console.log(e.message);
+        }
+    }
+
+    else if (request.body.saveCookies) {
+        try {
+            (async () => {
+                fs.writeFile(
+                    'cookies.json',
+                    JSON.stringify(await page.cookies(), null, 2)
+                );
+
+                response.send("Saved cookies");
+            })();
+        } catch(e) {
+            response.send("Error saving cookies");
             console.log(e.message);
         }
     }
