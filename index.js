@@ -20,6 +20,13 @@ const login = async () => {
 
         await page.goto('https://twitch.tv/login/');
         if (!await page.url().includes('login')) {
+            (async () => {
+                fs.writeFile(
+                    'cookies.json',
+                    JSON.stringify(await page.cookies(), null, 2),
+                    err => console.log("fs.writeFile Error" , err)
+                );
+            })();
             response.send('Logged in using cookies');
             return;
         }
@@ -119,7 +126,8 @@ app.post("/", (request, response) => {
                 if (!await page.url().includes('login')) {
                     fs.writeFile(
                         'cookies.json',
-                        JSON.stringify(await page.cookies(), null, 2)
+                        JSON.stringify(await page.cookies(), null, 2),
+                        err => console.log("fs.writeFile Error" , err)
                     );
 
                     response.send("Login Successful");
@@ -139,7 +147,7 @@ app.post("/", (request, response) => {
                 fs.writeFile(
                     'cookies.json',
                     JSON.stringify(await page.cookies(), null, 2),
-                    err => console.log(err)
+                    err => console.log("fs.writeFile Error" , err)
                 );
 
                 response.send("Saved cookies");
