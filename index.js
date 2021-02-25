@@ -70,23 +70,16 @@ try {
 }
 
 app.get("/", (_request, response) => {
-    console.log("GET request");
-    let cookies, cookiesSet;
-    try {
-        (async () => {
-            cookies = fs.readFileSync('cookies.json', 'utf-8');
-            cookiesSet = cookies === await page.cookies() !== "";
-        })();
-    } catch(e) {
-        console.log('Error reading cookies');
-        console.log(e.message);
-        cookiesSet = false;
-    }
+    const cookies = fs.readFileSync('cookies.json', 'utf-8');
+    const cookiesSet = cookies.includes(username);
 
-    response.send({
+    const resp = {
         url: page.url(),
         loggedIn: cookiesSet
-    });
+    }
+
+    console.log("GET request", resp);
+    response.send(resp);
 });
 
 app.post("/", (request, response) => {
