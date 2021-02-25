@@ -27,7 +27,7 @@ const login = async () => {
                     err => console.log("fs.writeFile Error" , err)
                 );
             })();
-            response.send('Logged in using cookies');
+            console.log('Logged in using cookies');
             return;
         }
     } catch(e) {
@@ -182,7 +182,14 @@ app.post("/", (request, response) => {
                 setTimeout(async () => {
                     await page.screenshot({path: 'playing.png'});
                 }, 10 * 1000);
-
+                setTimeout(async() => await page.evaluate(() => {
+                    let button = document.querySelector(
+                        'button[data-a-target="player-overlay-mature-accept"]'
+                    );
+                    if (button) {
+                        button.click();
+                    }
+                }));
                 response.send(`Connected to ${await page.url()}`);
             })();
         } catch(e) {
