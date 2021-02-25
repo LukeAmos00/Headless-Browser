@@ -12,6 +12,8 @@ let browser, page;
 
 let count = 0;
 
+let username = "";
+
 const login = async () => {
     let cookies;
     try {
@@ -24,7 +26,7 @@ const login = async () => {
                 fs.writeFile(
                     'cookies.json',
                     JSON.stringify(await page.cookies(), null, 2),
-                    err => console.log("fs.writeFile Error" , err)
+                    err => { if (err) console.log("Write Error" , err) }
                 );
             })();
             console.log('Logged in using cookies');
@@ -37,7 +39,7 @@ const login = async () => {
 
     await page.goto('https://twitch.tv/login/');
 
-    let username, password; 
+    let password; 
     fs.readFile('info.txt', 'utf-8', (error, data) => {
         if (error) throw new Error('Could not read credentials from info.txt');
         [username, password] = data.split('\r\n');
@@ -120,7 +122,7 @@ app.post("/", (request, response) => {
                     fs.writeFile(
                         'cookies.json',
                         JSON.stringify(await page.cookies(), null, 2),
-                        err => console.log("fs.writeFile Error" , err)
+                        err => { if (err) console.log("Write Error" , err) }
                     );
 
                     response.send("Login Successful");
@@ -140,7 +142,7 @@ app.post("/", (request, response) => {
                 fs.writeFile(
                     'cookies.json',
                     JSON.stringify(await page.cookies(), null, 2),
-                    err => console.log("fs.writeFile Error" , err)
+                    err => { if (err) console.log("Write Error" , err) }
                 );
 
                 response.send("Saved cookies");
