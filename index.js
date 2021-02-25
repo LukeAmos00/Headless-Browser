@@ -138,7 +138,8 @@ app.post("/", (request, response) => {
             (async () => {
                 fs.writeFile(
                     'cookies.json',
-                    JSON.stringify(await page.cookies(), null, 2)
+                    JSON.stringify(await page.cookies(), null, 2),
+                    err => console.log(err)
                 );
 
                 response.send("Saved cookies");
