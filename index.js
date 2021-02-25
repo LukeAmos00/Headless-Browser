@@ -77,7 +77,7 @@ app.get("/", (_request, response) => {
 
     const resp = {
         url: page.url(),
-        loggedIn: cookiesSet
+        'Logged-In': cookiesSet
     }
 
     console.log("GET request", resp);
