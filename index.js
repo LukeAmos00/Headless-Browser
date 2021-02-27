@@ -30,6 +30,16 @@ const login = async () => {
                 );
             })();
             console.log('Logged in using cookies');
+            
+            await page.goto('https://twitch.tv/)');
+            page.evaluate(() => {
+                const cookieAccept = document.querySelector(
+                    'button[data-a-target="consent-banner-accept"]'
+                );
+
+                if (cookieAccept) cookieAccept.click();
+            })
+
             return;
         }
     } catch(e) {
@@ -77,7 +87,7 @@ app.get("/", (_request, response) => {
 
     const resp = {
         url: page.url(),
-        'Logged-In': cookiesSet
+        'Logged In': cookiesSet
     }
 
     console.log("GET request", resp);
